@@ -6,7 +6,7 @@ namespace App\Models;
 
 final class Carrier extends AbstractShip
 {
-    public function getLength(): string
+    public function getLength(): int
     {
         return 5;
     }
