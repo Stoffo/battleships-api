@@ -33,8 +33,13 @@ abstract class AbstractShip implements ShipInterface
         $this->direction = $direction;
     }
 
-    public function getName(): string
+    public function isHorizontal(): bool
     {
-        return strtolower(__CLASS__);
+        return static::getDirection() === ShipInterface::DIRECTION_RIGHT;
+    }
+
+    public function isVertical(): bool
+    {
+        return static::getDirection() === ShipInterface::DIRECTION_DOWN;
     }
 }

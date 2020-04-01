@@ -4,7 +4,9 @@
 namespace App\Models;
 
 
-final class Carrier extends AbstractShip
+use App\Contracts\ShipInterface;
+
+final class Carrier extends AbstractShip implements ShipInterface
 {
     public function getLength(): int
     {
@@ -24,5 +26,10 @@ final class Carrier extends AbstractShip
     public function getDirection(): string
     {
         return $this->direction;
+    }
+
+    public function getName(): string
+    {
+        return 'carrier';
     }
 }

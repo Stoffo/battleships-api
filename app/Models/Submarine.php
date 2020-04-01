@@ -25,4 +25,9 @@ final class Submarine extends AbstractShip
     {
         return $this->direction;
     }
+
+    public function getName(): string
+    {
+        return 'submarine';
+    }
 }

@@ -25,4 +25,9 @@ final class Destroyer extends AbstractShip
     {
         return $this->direction;
     }
+
+    public function getName(): string
+    {
+        return 'destroyer';
+    }
 }

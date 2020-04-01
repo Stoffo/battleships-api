@@ -25,4 +25,9 @@ final class Battleship extends AbstractShip
     {
         return $this->direction;
     }
+
+    public function getName(): string
+    {
+        return 'battleship';
+    }
 }

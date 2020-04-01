@@ -25,4 +25,9 @@ final class Cruiser extends AbstractShip
     {
         return $this->direction;
     }
+
+    public function getName(): string
+    {
+        return 'cruiser';
+    }
 }
