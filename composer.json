@@ -6,8 +6,9 @@
     "type": "project",
     "require": {
         "php": "^7.2.5",
+        "ext-json": "*",
         "laravel/lumen-framework": "^7.0",
-      "ext-json": "*"
+        "webmozart/assert": "^1.7"
     },
     "require-dev": {
         "fzaninotto/faker": "^1.9.1",
