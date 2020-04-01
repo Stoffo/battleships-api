@@ -84,7 +84,6 @@
 </div>
 
 <div class="grid grid-enemy">
-
     <h2>Enemy</h2>
 
     <?php
@@ -105,6 +104,11 @@
     ?>
 </div>
 
+<div>
+    <button>Place Ships randomly</button>
+    <button>Restart</button>
+</div>
+
 <script>
     (function () {
         const CSS_HIT = 'hit';
@@ -112,9 +116,18 @@
         const CSS_SUNK = 'sunk';
 
         function Battleships() {
+            this.ships = {
+                "destroyer": {"length": 2, "x": null, "y": null, "direction": null},
+                "submarine": {"length": 3, "x": null, "y": null, "direction": null},
+                "cruiser": {"length": 3, "x": null, "y": null, "direction": null},
+                "battleship": {"length": 4, "x": null, "y": null, "direction": null},
+                "carrier": {"length": 5, "x": null, "y": null, "direction": null},
+            };
         }
 
-        let battleships = new Battleships();
+        Battleships.prototype.placeShip = function (x, y, type) {
+
+        };
 
         Battleships.prototype.fire = function (element) {
             let x = element.attr('data-x');
@@ -146,6 +159,10 @@
                     }
 
                     battleships.markEnemyShot(rsp.enemy_shot.x, rsp.enemy_shot.y);
+                },
+                error: function (rsp) {
+                    console.error(rsp);
+                    alert(rsp.statusText + "\nThere is something wrong with the server!\n Check the console.")
                 }
             });
         };
@@ -154,6 +171,8 @@
             //Check if hit or sunk
             $(".player-cell[data-x=" + x + "][data-y=" + y + "]").addClass("sunk").val("X")
         };
+
+        let battleships = new Battleships();
 
         $(".enemy-cell").click(function (e) {
             let $clickedCell = $(e.target);
@@ -165,7 +184,7 @@
 
             battleships.fire($clickedCell);
         });
-    }())
+    }());
 </script>
 </body>
 </html>
