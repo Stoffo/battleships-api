@@ -22,6 +22,11 @@ abstract class AbstractShip implements ShipInterface
      */
     protected $direction;
 
+    /**
+     * @var int
+     */
+    protected $damage = 0;
+
     public function __construct(int $x, int $y, string $direction)
     {
         Assert::range($x, 1, 10);
@@ -41,5 +46,17 @@ abstract class AbstractShip implements ShipInterface
     public function isVertical(): bool
     {
         return static::getDirection() === ShipInterface::DIRECTION_DOWN;
+    }
+
+    public function increaseDamage(): void
+    {
+        if (!$this->hasSunk()) {
+            $this->damage++;
+        }
+    }
+
+    public function hasSunk(): bool
+    {
+        return $this->damage === static::getLength();
     }
 }

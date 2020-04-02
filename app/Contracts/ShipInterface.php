@@ -21,4 +21,8 @@ interface ShipInterface
     public function isVertical(): bool;
 
     public function isHorizontal(): bool;
+
+    public function increaseDamage(): void;
+
+    public function hasSunk(): bool;
 }

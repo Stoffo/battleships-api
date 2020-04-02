@@ -23,4 +23,17 @@ class AbstractShipTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         new Battleship(1, 5, 'foo');
     }
+
+    public function testGetters()
+    {
+        $ship = new Submarine(1, 2, ShipInterface::DIRECTION_DOWN);
+
+        $this->assertFalse($ship->hasSunk());
+
+        $ship->increaseDamage();
+        $ship->increaseDamage();
+        $ship->increaseDamage();
+
+        $this->assertTrue($ship->hasSunk());
+    }
 }
