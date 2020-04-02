@@ -14,6 +14,10 @@
             color: #adadad;
         }
 
+        label {
+            width: 80px;
+        }
+
         .grid {
             float: left;
         }
@@ -41,7 +45,7 @@
         }
 
         .hit {
-            background-color: darkgrey;
+            background-color: red;
         }
 
         .miss {
@@ -49,7 +53,7 @@
         }
 
         .sunk {
-            background-color: red;
+            background-color: black;
         }
     </style>
 
@@ -82,7 +86,6 @@
 
     ?>
 </div>
-
 <div class="grid grid-enemy">
     <h2>Enemy</h2>
 
@@ -94,7 +97,7 @@
 
         for ($y = 1; $y <= 10; $y++) {
             echo "\t";
-            echo '<div class="grid-cell enemy-cell" data-x="' . $x . '" data-y="' . $y . '"></div>';
+            echo '<div class="grid-cell enemy-cell" data-x="' . $x . '" data-y="' . $y . '" title="x:' . $x . ' y:' . $y . '"></div>';
             echo PHP_EOL;
         }
 
@@ -106,7 +109,13 @@
 
 <div>
     <button>Place Ships randomly</button>
-    <button>Restart</button>
+    <button class="restart">Restart</button>
+
+    <label for="destroyer">destroyer<input type="number" id="destroyer"></label>
+    <label for="submarine">submarine<input type="number" id="submarine"></label>
+    <label for="cruiser">cruiser<input type="number" id="cruiser"></label>
+    <label for="battleship">battleship<input type="number" id="battleship"></label>
+    <label for="carrier">carrier<input type="number" id="carrier"></label>
 </div>
 
 <script>
@@ -183,6 +192,16 @@
             }
 
             battleships.fire($clickedCell);
+        });
+
+        $("button.restart").click(function (e) {
+            $.post({
+                url: '/api/reset',
+                type: 'post',
+                success: function () {
+                    location.reload();
+                }
+            });
         });
     }());
 </script>

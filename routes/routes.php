@@ -16,12 +16,17 @@ use Laravel\Lumen\Routing\Router;
 
 /** @var Router $router */
 $router->get('/', function () use ($router) {
-    return view("web");
+    return view('game');
 });
 
 $router->group(['prefix' => 'api', 'middleware' => 'validate_json'], function () use ($router) {
     $router->post('fire', [
         'as'         => 'fire',
         'uses'       => 'BattleshipController@fireShot',
+    ]);
+
+    $router->get('grid', [
+        'as'         => 'grid',
+        'uses'       => 'BattleshipController@getGrid',
     ]);
 });
