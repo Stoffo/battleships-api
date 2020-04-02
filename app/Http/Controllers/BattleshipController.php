@@ -33,7 +33,7 @@ class BattleshipController extends BaseController
     {
         $this->service->resetGame();
 
-        return new JsonResponse(['success' => true,]);
+        return new JsonResponse(['success' => true]);
     }
 
     public function setUp(Request $request)
@@ -56,15 +56,7 @@ class BattleshipController extends BaseController
 
         $result = $this->service->shoot($x, $y);
 
-        return new JsonResponse([
-            'game_over' => $this->service->isGameOver(),
-            'hit' => true,
-            'sunk' => false,
-            'enemy_shot' => [
-                'x' => random_int(1, 10),
-                'y' => random_int(1, 10),
-            ],
-        ]);
+        return new JsonResponse($result);
     }
 
     public function reset()

@@ -45,11 +45,17 @@ class Grid
         return count($this->ships) === self::MAX_SUM_SHIPS;
     }
 
-    public function shoot(int $x, int $y): bool
+    public function shoot(int $x, int $y): ?ShipInterface
     {
         $ship = $this->getShipForPosition($x, $y);
 
-        return $ship instanceof ShipInterface;
+        if ($ship instanceof ShipInterface) {
+            $ship->increaseDamage();
+
+            return $ship;
+        }
+
+        return null;
     }
 
     protected function getShipForPosition(int $x, int $y): ?ShipInterface

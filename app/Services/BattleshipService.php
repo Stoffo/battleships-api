@@ -18,6 +18,14 @@ class BattleshipService
      * @var EnemyGrid
      */
     private $enemyGrid;
+    /**
+     * @var bool
+     */
+    private $enemyDidHitLastTime = false;
+    /**
+     * @var array
+     */
+    private $lastEnemyShotCoords = [];
 
     public function __construct(PlayerGrid $playerGrid, EnemyGrid $enemyGrid)
     {
@@ -43,15 +51,45 @@ class BattleshipService
 
     public function shoot(int $x, int $y)
     {
-        $shipWasHit = $this->enemyGrid->shoot(1, 2);
+        //Shoot the Enemy's grid
+        $enemyShip = $this->enemyGrid->shoot($x, $y);
+        $playerHit = $enemyShip instanceof ShipInterface;
 
-        #$this->playerGrid->shoot();
+        //Let the computer shoot at the players grid
+        list($x, $y) = $this->getEnemyShot();
+        $playerShip = $this->playerGrid->shoot($x, $y);
+
+        $enemyHit = $playerShip instanceof ShipInterface;
+
+        $this->enemyDidHitLastTime = $enemyHit;
+
+        return [
+            'player' => [
+                'hit' => $playerHit,
+                'sunk' => $playerHit && $enemyShip->hasSunk(),
+            ],
+            'enemy' => [
+                'hit' => $enemyHit,
+                'sunk' => $enemyHit && $playerShip->hasSunk(),
+                'x' => $x,
+                'y' => $y
+            ]
+        ];
     }
 
-    protected function enemyShoot()
+    protected function getEnemyShot()
     {
-        $x = random_int(0, 10);
-        $y = random_int(0, 10);
+        if ($this->enemyDidHitLastTime) {
+            $lastCoords = $this->lastEnemyShotCoords;
+            return $lastCoords[0]--;
+        }
+
+        $x = random_int(1, 10);
+        $y = random_int(1, 10);
+
+        $this->lastEnemyShotCoords = [$x, $y];
+
+        return [$x, $y];
     }
 
     public function isGameOver(): bool
