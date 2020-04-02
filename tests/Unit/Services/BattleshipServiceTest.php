@@ -50,4 +50,25 @@ class BattleshipServiceTest extends TestCase
         $this->assertTrue($this->service->isPossibleToPlaceShip(new Battleship(1, 1, ShipInterface::DIRECTION_DOWN)));
         $this->assertTrue($this->service->isPossibleToPlaceShip(new Cruiser(10, 1, ShipInterface::DIRECTION_RIGHT)));
     }
+
+    public function testShipPlacementWhenShipIsInTheWayHorizontal()
+    {
+        $this->service->placeShip(new Battleship(1, 3, ShipInterface::DIRECTION_RIGHT));
+
+        $this->assertFalse($this->service->isPossibleToPlaceShip(new Cruiser(1, 1, ShipInterface::DIRECTION_RIGHT)));
+    }
+
+    public function testShipPlacementWhenShipIsInTheWayVertical()
+    {
+        $this->service->placeShip(new Battleship(3, 3, ShipInterface::DIRECTION_DOWN));
+
+        $this->assertTrue($this->service->isPossibleToPlaceShip(new Destroyer(1, 3, ShipInterface::DIRECTION_DOWN)));
+        $this->assertFalse($this->service->isPossibleToPlaceShip(new Cruiser(1, 3, ShipInterface::DIRECTION_DOWN)));
+    }
+
+    public function testAlreadyPlaced()
+    {
+        $this->service->placeShip(new Battleship(3, 3, ShipInterface::DIRECTION_DOWN));
+        $this->assertFalse($this->service->isPossibleToPlaceShip(new Battleship(1, 3, ShipInterface::DIRECTION_DOWN)));
+    }
 }
