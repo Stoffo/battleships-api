@@ -25,8 +25,13 @@ $router->group(['prefix' => 'api', 'middleware' => 'validate_json'], function ()
         'uses'       => 'BattleshipController@fireShot',
     ]);
 
-    $router->get('grid', [
-        'as'         => 'grid',
-        'uses'       => 'BattleshipController@getGrid',
+    $router->post('reset', [
+        'as'         => 'reset',
+        'uses'       => 'BattleshipController@resetGame',
+    ]);
+
+    $router->get('grids', [
+        'as'         => 'grids',
+        'uses'       => 'BattleshipController@getGrids',
     ]);
 });
