@@ -5,134 +5,78 @@ namespace App\Services;
 
 
 use App\Contracts\ShipInterface;
+use App\EnemyGrid;
+use App\PlayerGrid;
 
 class BattleshipService
 {
-    const GRID_SIZE = 10;
+    /**
+     * @var PlayerGrid
+     */
+    private $playerGrid;
+    /**
+     * @var EnemyGrid
+     */
+    private $enemyGrid;
 
-    const MAX_SUM_SHIPS = 5;
-
-    protected $grid = [];
-    private $ships = [];
-
-    public function __construct()
+    public function __construct(PlayerGrid $playerGrid, EnemyGrid $enemyGrid)
     {
-        $this->setUpGrid();
+        $this->playerGrid = $playerGrid;
+        $this->enemyGrid = $enemyGrid;
     }
 
-    private function setUpGrid(): void
+    /**
+     * @return PlayerGrid
+     */
+    public function getPlayerGrid(): PlayerGrid
     {
-        for ($x = 1; $x <= self::GRID_SIZE; $x++) {
-            for ($y = 1; $y <= self::GRID_SIZE; $y++) {
-                $this->grid[$x][$y] = null;
-            }
-        }
+        return $this->playerGrid;
     }
 
-    public function isReadyToPlay(): bool
+    /**
+     * @return EnemyGrid
+     */
+    public function getEnemyGrid(): EnemyGrid
     {
-        return count($this->ships) === self::MAX_SUM_SHIPS;
+        return $this->enemyGrid;
     }
 
-    public function shoot(int $x, int $y): bool
+    public function shoot(int $x, int $y)
     {
-        $ship = $this->getShipForPosition($x, $y);
+        $shipWasHit = $this->enemyGrid->shoot(1, 2);
 
-        return $ship instanceof ShipInterface;
+        #$this->playerGrid->shoot();
     }
 
-    protected function getShipForPosition(int $x, int $y): ?ShipInterface
+    protected function enemyShoot()
     {
-        $shipNameOnCell = $this->grid[$x][$y];
-
-        if ($shipNameOnCell) {
-            return $this->ships[$shipNameOnCell];
-        }
-
-        return null;
-    }
-
-    public function isShipAlreadyPlaced(ShipInterface $ship): bool
-    {
-        return array_key_exists($ship->getName(), $this->ships);
+        $x = random_int(0, 10);
+        $y = random_int(0, 10);
     }
 
     public function isGameOver(): bool
     {
-        //TODO: Implement Logic
-        return false;
-    }
-
-    public function placeShip(ShipInterface $ship)
-    {
-        if ($this->isReadyToPlay() || !$this->isPossibleToPlaceShip($ship)) {
-            return;
-        }
-
-        $x = $ship->getX();
-        $y = $ship->getY();
-
-        if ($ship->isHorizontal()) {
-            //Put ship name in Y matrix
-            for ($i = $y; $i <= $ship->getLength() + $y - 1; $i++) {
-                $this->grid[$x][$i] = $ship->getName();
-            }
-        }
-
-        if ($ship->isVertical()) {
-            //Put ship name in X matrix
-            for ($i = $y; $i <= $ship->getLength() + $y - 1; $i++) {
-                $this->grid[$i][$y] = $ship->getName();
-            }
-        }
-
-        $this->ships[$ship->getName()] = $ship;
-    }
-
-    /**
-     * @return array
-     */
-    public function getGrid(): array
-    {
-        return $this->grid;
-    }
-
-    public function isPossibleToPlaceShip(ShipInterface $ship): bool
-    {
-        if (!$this->isWithinGrid($ship) || $this->isShipAlreadyPlaced($ship)) {
-            return false;
-        }
-
-        if ($this->getShipForPosition($ship->getX(), $ship->getY())) {
-            return false;
-        }
-
-        for ($i = 0; $i < $ship->getLength(); $i++) {
-            if ($ship->isHorizontal()) {
-                $x = $ship->getX();
-                $y = $ship->getY() + $i;
-            } else {
-                $x = $ship->getX() + $i;
-                $y = $ship->getY();
-            }
-
-            $shipOnCell = $this->getShipForPosition($x, $y);
-
-            if ($shipOnCell) {
-                return false;
-            }
-        }
-
-
         return true;
     }
 
-    protected function isWithinGrid(ShipInterface $ship): bool
+    public function resetGame()
     {
-        if ($ship->isVertical()) {
-            return $ship->getX() + $ship->getLength() <= self::GRID_SIZE;
-        }
+        $playerGridObjectPath = storage_path('app/playergrid');
+        $enemyGridObjectPath = storage_path('app/enemygrid');
+        file_put_contents($enemyGridObjectPath, '');
+        file_put_contents($playerGridObjectPath, '');
+    }
 
-        return $ship->getY() + $ship->getLength() <= self::GRID_SIZE;
+    public function __destruct()
+    {
+        //TODO: abstract this in a nicer way
+        $playerGridObjectPath = storage_path('app/playergrid');
+        $enemyGridObjectPath = storage_path('app/enemygrid');
+
+        $serializedEnemyGrid = serialize($this->enemyGrid);
+        $serializedPlayerGrid = serialize($this->playerGrid);
+
+        file_put_contents($enemyGridObjectPath, $serializedEnemyGrid);
+        file_put_contents($playerGridObjectPath, $serializedPlayerGrid);
     }
 }
