@@ -144,4 +144,19 @@ class Grid
 
         return $ship->getY() + $ship->getLength() <= self::GRID_SIZE;
     }
+
+    public function allShipsAreSunk()
+    {
+        if (!$this->isReadyToPlay()) {
+            return false;
+        }
+
+        foreach ($this->getShips() as $ship) {
+            if (!$ship->hasSunk()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

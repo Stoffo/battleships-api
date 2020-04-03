@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\EnemyGridFactory;
+use App\GridFactory;
 use App\Grid;
 use App\PlayerGrid;
 use App\Services\BattleshipService;
@@ -29,9 +29,9 @@ class AppServiceProvider extends ServiceProvider
             }
 
             $playerGrid = $playerGrid instanceof Grid ? $playerGrid : new PlayerGrid();
-            $enemyGrid = $enemyGrid instanceof Grid ? $enemyGrid : EnemyGridFactory::create();
+            $enemyGrid = $enemyGrid instanceof Grid ? $enemyGrid : GridFactory::create();
 
-            #$serialized = serialize(EnemyGridFactory::create());
+            #$serialized = serialize(GridFactory::create());
             #file_put_contents($enemyGridObjectPath, $serialized);
 
             return new BattleshipService($playerGrid, $enemyGrid);

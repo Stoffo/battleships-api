@@ -13,7 +13,7 @@ use App\Models\Submarine;
 use Faker\Factory;
 use LogicException;
 
-class EnemyGridFactory
+class GridFactory
 {
     private static $ships = [
         Battleship::class,

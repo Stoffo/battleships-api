@@ -4,12 +4,8 @@
 namespace App\Services;
 
 
-use App\Contracts\ShipInterface;
-use App\Models\Battleship;
-use App\Models\Carrier;
-use App\Models\Cruiser;
-use App\Models\Destroyer;
-use App\Models\Submarine;
+use App\GridFactory;
+use App\PlayerGrid;
 use TestCase;
 
 class BattleshipServiceTest extends TestCase
@@ -23,7 +19,7 @@ class BattleshipServiceTest extends TestCase
     {
         parent::setUp();
 
-        $this->service = new BattleshipService();
+        $this->service = new BattleshipService(new PlayerGrid(), GridFactory::create());
     }
 
     public function testGameIsNotReadyInitially()
@@ -31,44 +27,17 @@ class BattleshipServiceTest extends TestCase
         $this->assertFalse($this->service->isReadyToPlay());
     }
 
-    public function testGameIsReadyWhenAllShipsAreInPlace()
+    public function testGameIsReadyWhenAllShipsArePlaces()
     {
-        $this->service->placeShip(new Battleship(1, 1, ShipInterface::DIRECTION_RIGHT));
-        $this->service->placeShip(new Carrier(2, 1, ShipInterface::DIRECTION_RIGHT));
-        $this->service->placeShip(new Cruiser(3, 1, ShipInterface::DIRECTION_RIGHT));
-        $this->service->placeShip(new Destroyer(4, 1, ShipInterface::DIRECTION_RIGHT));
-        $this->service->placeShip(new Submarine(5, 1, ShipInterface::DIRECTION_RIGHT));
-
-        $this->assertTrue($this->service->isReadyToPlay());
+        $service = new BattleshipService(GridFactory::create(), GridFactory::create());
+        $this->assertTrue($service->isReadyToPlay());
     }
 
-    public function testShipPlacement()
+    public function testShootFunctionReturnsValues()
     {
-        $this->assertFalse($this->service->isPossibleToPlaceShip(new Battleship(10, 10, ShipInterface::DIRECTION_DOWN)));
-        $this->assertFalse($this->service->isPossibleToPlaceShip(new Cruiser(10, 10, ShipInterface::DIRECTION_RIGHT)));
-
-        $this->assertTrue($this->service->isPossibleToPlaceShip(new Battleship(1, 1, ShipInterface::DIRECTION_DOWN)));
-        $this->assertTrue($this->service->isPossibleToPlaceShip(new Cruiser(10, 1, ShipInterface::DIRECTION_RIGHT)));
-    }
-
-    public function testShipPlacementWhenShipIsInTheWayHorizontal()
-    {
-        $this->service->placeShip(new Battleship(1, 3, ShipInterface::DIRECTION_RIGHT));
-
-        $this->assertFalse($this->service->isPossibleToPlaceShip(new Cruiser(1, 1, ShipInterface::DIRECTION_RIGHT)));
-    }
-
-    public function testShipPlacementWhenShipIsInTheWayVertical()
-    {
-        $this->service->placeShip(new Battleship(3, 3, ShipInterface::DIRECTION_DOWN));
-
-        $this->assertTrue($this->service->isPossibleToPlaceShip(new Destroyer(1, 3, ShipInterface::DIRECTION_DOWN)));
-        $this->assertFalse($this->service->isPossibleToPlaceShip(new Cruiser(1, 3, ShipInterface::DIRECTION_DOWN)));
-    }
-
-    public function testAlreadyPlaced()
-    {
-        $this->service->placeShip(new Battleship(3, 3, ShipInterface::DIRECTION_DOWN));
-        $this->assertFalse($this->service->isPossibleToPlaceShip(new Battleship(1, 3, ShipInterface::DIRECTION_DOWN)));
+        $result = $this->service->shoot(1, 2);
+        $this->assertNotEmpty($result);
+        $this->assertArrayHasKey('player', $result);
+        $this->assertArrayHasKey('enemy', $result);
     }
 }

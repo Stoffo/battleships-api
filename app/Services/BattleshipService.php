@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Contracts\ShipInterface;
 use App\EnemyGrid;
+use App\Grid;
 use App\PlayerGrid;
 
 class BattleshipService
@@ -27,7 +28,7 @@ class BattleshipService
      */
     private $lastEnemyShotCoords = [];
 
-    public function __construct(PlayerGrid $playerGrid, EnemyGrid $enemyGrid)
+    public function __construct(Grid $playerGrid, Grid $enemyGrid)
     {
         $this->playerGrid = $playerGrid;
         $this->enemyGrid = $enemyGrid;
@@ -38,18 +39,12 @@ class BattleshipService
         return $this->getPlayerGrid()->isReadyToPlay();
     }
 
-    /**
-     * @return PlayerGrid
-     */
-    public function getPlayerGrid(): PlayerGrid
+    public function getPlayerGrid(): Grid
     {
         return $this->playerGrid;
     }
 
-    /**
-     * @return EnemyGrid
-     */
-    public function getEnemyGrid(): EnemyGrid
+    public function getEnemyGrid(): Grid
     {
         return $this->enemyGrid;
     }
@@ -72,10 +67,12 @@ class BattleshipService
             'player' => [
                 'hit' => $playerHit,
                 'sunk' => $playerHit && $enemyShip->hasSunk(),
+                'lost_game' => $this->playerGrid->allShipsAreSunk()
             ],
             'enemy' => [
                 'hit' => $enemyHit,
                 'sunk' => $enemyHit && $playerShip->hasSunk(),
+                'lost_game' => $this->enemyGrid->allShipsAreSunk(),
                 'x' => $x,
                 'y' => $y
             ]
@@ -99,7 +96,7 @@ class BattleshipService
 
     public function isGameOver(): bool
     {
-        return true;
+        return $this->playerGrid->allShipsAreSunk() || $this->enemyGrid->allShipsAreSunk();
     }
 
     public function resetGame()
@@ -112,6 +109,8 @@ class BattleshipService
 
     public function __destruct()
     {
+
+        return;
         //TODO: abstract this in a nicer way
         $playerGridObjectPath = storage_path('app/playergrid');
         $enemyGridObjectPath = storage_path('app/enemygrid');
