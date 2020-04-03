@@ -97,10 +97,7 @@ class Grid
         return true;
     }
 
-    /**
-     * @return array
-     */
-    public function getGrid(): array
+    public function getGridAsArray(): array
     {
         return $this->grid;
     }

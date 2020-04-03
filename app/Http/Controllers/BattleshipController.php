@@ -24,8 +24,8 @@ class BattleshipController extends BaseController
     public function getGrids()
     {
         return new JsonResponse([
-            'player' => $this->service->getPlayerGrid()->getGrid(),
-            'enemy' => $this->service->getPlayerGrid()->getGrid()
+            'player' => $this->service->getPlayerGrid()->getGridAsArray(),
+            'enemy' => $this->service->getPlayerGrid()->getGridAsArray()
         ]);
     }
 

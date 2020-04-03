@@ -33,6 +33,11 @@ class BattleshipService
         $this->enemyGrid = $enemyGrid;
     }
 
+    public function isReadyToPlay()
+    {
+        return $this->getPlayerGrid()->isReadyToPlay();
+    }
+
     /**
      * @return PlayerGrid
      */
