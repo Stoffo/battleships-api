@@ -72,4 +72,15 @@ class GridTest extends TestCase
         $this->grid->placeShip(new Battleship(3, 3, ShipInterface::DIRECTION_DOWN));
         $this->assertFalse($this->grid->isPossibleToPlaceShip(new Battleship(1, 3, ShipInterface::DIRECTION_DOWN)));
     }
+
+    public function testAllShipsAreSunkInitially()
+    {
+        $this->grid->placeShip(new Battleship(2, 1, ShipInterface::DIRECTION_RIGHT));
+        $this->grid->placeShip(new Carrier(2, 1, ShipInterface::DIRECTION_RIGHT));
+        $this->grid->placeShip(new Cruiser(3, 1, ShipInterface::DIRECTION_RIGHT));
+        $this->grid->placeShip(new Destroyer(4, 1, ShipInterface::DIRECTION_RIGHT));
+        $this->grid->placeShip(new Submarine(5, 1, ShipInterface::DIRECTION_RIGHT));
+
+        $this->assertFalse($this->grid->allShipsAreSunk());
+    }
 }
