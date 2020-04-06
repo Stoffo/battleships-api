@@ -6,6 +6,8 @@ namespace App;
 
 use App\Contracts\ShipInterface;
 use App\Exceptions\InvalidShipPositionException;
+use App\Exceptions\OutOfGridException;
+use App\Exceptions\ShipAlreadyPlacedException;
 
 class Grid
 {
@@ -79,6 +81,7 @@ class Grid
      * @param ShipInterface $ship
      * @return bool
      * @throws InvalidShipPositionException
+     * @throws OutOfGridException
      */
     public function placeShip(ShipInterface $ship): bool
     {
@@ -108,14 +111,24 @@ class Grid
         return $this->grid;
     }
 
-    public function isPossibleToPlaceShip(ShipInterface $ship): bool
+    /**
+     * @param ShipInterface $ship
+     * @return bool
+     * @throws OutOfGridException
+     * @throws ShipAlreadyPlacedException
+     */
+    protected function isPossibleToPlaceShip(ShipInterface $ship): bool
     {
         if ($this->isReadyToPlay()) {
             return false;
         }
 
-        if (!$this->isWithinGrid($ship) || $this->isShipAlreadyPlaced($ship)) {
-            return false;
+        if (!$this->isWithinGrid($ship)) {
+            throw new OutOfGridException();
+        }
+
+        if ($this->isShipAlreadyPlaced($ship)) {
+            throw new ShipAlreadyPlacedException($ship);
         }
 
         if ($this->getShipForPosition($ship->getX(), $ship->getY()) instanceof ShipInterface) {
@@ -137,7 +150,6 @@ class Grid
                 return false;
             }
         }
-
 
         return true;
     }
