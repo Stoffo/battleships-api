@@ -45,12 +45,16 @@ class Handler extends ExceptionHandler
      *
      * @param \Illuminate\Http\Request $request
      * @param Throwable $e
-     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
+     * @return \Symfony\Component\HttpFoundation\Response
      *
      * @throws Throwable
      */
     public function render($request, Throwable $e)
     {
+        if ($e instanceof ValidationException) {
+            return $e->getResponse();
+        }
+
         if ($e instanceof HttpException) {
             $response['message'] = $e->getMessage() ?: Response::$statusTexts[$e->getStatusCode()];
             $response['status'] = $e->getStatusCode();
@@ -58,6 +62,11 @@ class Handler extends ExceptionHandler
             return new JsonResponse($response, $response['status']);
         }
 
-        return new JsonResponse($e->getMessage());
+        return new JsonResponse([
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ], 400
+        );
     }
 }
