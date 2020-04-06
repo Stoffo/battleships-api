@@ -33,10 +33,14 @@ class GridFactory
             //Loop through random ship combinations until every ship has its place
             while ($isPossible === false) {
                 $randomShip = self::getRandomship($shipType);
-                $isPossible = $grid->placeShip($randomShip);
+
+                try {
+                    $isPossible = $grid->placeShip($randomShip);
+                } catch (Exceptions\InvalidShipPositionException $e) {
+                    $isPossible = false;
+                }
             }
         }
-
 
         if (!$grid->isReadyToPlay()) {
             throw new LogicException('Game is not ready. Something went wrong!');
