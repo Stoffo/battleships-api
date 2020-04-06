@@ -20,18 +20,29 @@ $router->get('/', function () use ($router) {
 });
 
 $router->group(['prefix' => 'api', 'middleware' => 'validate_json'], function () use ($router) {
+
+    $router->post('place-ship', [
+        'as' => 'place',
+        'uses' => 'BattleshipController@placeShip',
+    ]);
+
     $router->post('fire', [
-        'as'         => 'fire',
-        'uses'       => 'BattleshipController@fireShot',
+        'as' => 'fire',
+        'uses' => 'BattleshipController@fireShot',
     ]);
 
     $router->post('reset', [
-        'as'         => 'reset',
-        'uses'       => 'BattleshipController@resetGame',
+        'as' => 'reset',
+        'uses' => 'BattleshipController@resetGame',
     ]);
 
     $router->get('grids', [
-        'as'         => 'grids',
-        'uses'       => 'BattleshipController@getGrids',
+        'as' => 'grids',
+        'uses' => 'BattleshipController@getGrid',
+    ]);
+
+    $router->get('grids/enemy', [
+        'as' => 'grids',
+        'uses' => 'BattleshipController@getEnemyGrid',
     ]);
 });
