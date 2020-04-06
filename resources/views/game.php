@@ -14,6 +14,15 @@
             color: #adadad;
         }
 
+        .log-container {
+            color: red;
+            border: 1px solid #adadad;
+            float: left;
+            width: 460px;
+            height: 300px;
+            overflow: auto;
+        }
+
         .grid {
             float: left;
             padding: 10px;
@@ -175,12 +184,18 @@ html;
     }
     ?>
 </div>
+
+<div class="log-container">
+    <h3>Errors & Infos</h3>
+    <div class="log"></div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script>
     (function () {
-        const CSS_HIT = 'hit';
-        const CSS_MISS = 'miss';
-        const CSS_SUNK = 'sunk';
+        const CSS_HIT = "hit";
+        const CSS_MISS = "miss";
+        const CSS_SUNK = "sunk";
 
         function Battleships() {
             this.init();
@@ -188,10 +203,11 @@ html;
 
         Battleships.prototype.init = function () {
             this.resetGame();
+
             self = this;
             $.post({
-                url: '/api/grids',
-                type: 'get',
+                url: "/api/grids/player",
+                type: "get",
                 success: function (rsp) {
                     self.populateGrid(rsp);
                 }
@@ -203,7 +219,7 @@ html;
         };
 
         Battleships.prototype.populateGrid = function (data) {
-            console.log('populating player grid...');
+            console.log("populating player grid...");
 
             self = this;
             Object.values(data).forEach(function (cellValue, x) {
@@ -218,7 +234,7 @@ html;
         };
 
         Battleships.prototype.drawPlayerShip = function (shipData) {
-            for (let i = 0; i <= shipData.length; i++) {
+            for (let i = 0; i < shipData.length; i++) {
                 let $cell;
                 if (shipData.direction === "right") {
                     $cell = this.getCellByCoordinate(shipData.x, shipData.y + i);
@@ -257,25 +273,25 @@ html;
                 contentType: "application/json",
                 success: function (rsp) {
                     console.info('Shot fired!');
-                    console.debug(rsp);
 
                     if (rsp.player.hit === true) {
                         if (rsp.player.sunk === true) {
-                            element.addClass(CSS_SUNK);
-                            console.info("Enemy Boat sunk!")
+                            alert("Enemy Boat sunk!")
                         }
-
-                        element.addClass(CSS_HIT);
-                        console.info("Enemy Boat hit!");
+                        element.removeClass(CSS_MISS).addClass(CSS_HIT);
                     } else {
                         element.addClass(CSS_MISS);
                     }
 
+                    if (rsp.enemy.lost_game === true) {
+                        alert("Congratulations! You won the game!")
+                    }
+
+                    if (rsp.player.lost_game === true) {
+                        alert("You lost!")
+                    }
+
                     battleships.markEnemyShot(rsp.enemy.x, rsp.enemy.y, rsp.enemy.hit, rsp.enemy.sunk);
-                },
-                error: function (rsp) {
-                    console.error(rsp);
-                    alert(rsp.statusText + "\nThere is something wrong with the server!\n Check the console.")
                 }
             });
         };
@@ -335,22 +351,20 @@ html;
                 .done(function () {
                     $button.prop("disabled", true).html("Ship placed!");
                 })
-                .fail(function (rsp) {
-                    if (rsp.responseJSON.hasOwnProperty('message')) {
-                        alert(rsp.responseJSON.message);
-                        return;
-                    }
+        });
 
-                    let alertMessage = '';
-                    Object.values(rsp.responseJSON).map(function (message, x) {
+        $(document).ajaxError(function (event, rsp) {
+            if (rsp.responseJSON.hasOwnProperty("message")) {
+                $(".log").prepend(rsp.responseJSON.message + '<br>');
+                return;
+            }
 
-                        console.log(message, x);
-                        alertMessage += message + '\n';
+            let errorMessage = "";
+            Object.values(rsp.responseJSON).map(function (message, x) {
+                errorMessage += message + '\n';
+            });
 
-                    });
-
-                    alert(alertMessage);
-                })
+            $(".log").prepend(errorMessage + '<br>');
         });
     }());
 </script>

@@ -3,10 +3,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\ShipInterface;
 use App\Grid;
 use App\Services\BattleshipService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Validation\Rule;
 use Laravel\Lumen\Routing\Controller as BaseController;
 
 class BattleshipController extends BaseController
@@ -21,27 +24,46 @@ class BattleshipController extends BaseController
         $this->service = $service;
     }
 
-    public function getGrids()
+    public function getPlayerGrid()
     {
-        return new JsonResponse([
-            'player' => $this->service->getPlayerGrid()->getGridAsArray(),
-            'enemy' => $this->service->getPlayerGrid()->getGridAsArray()
-        ]);
+        return new JsonResponse($this->service->getPlayerGrid()->getGridAsArray());
+    }
+
+    public function getEnemyGrid()
+    {
+        return new JsonResponse($this->service->getEnemyGrid()->getGridAsArray());
     }
 
     public function resetGame()
     {
         $this->service->resetGame();
 
-        return new JsonResponse(['success' => true]);
+        return new Response;
     }
 
-    public function setUp(Request $request)
+    public function placeShip(Request $request)
     {
         $this->validate($request, [
-            'ships' => 'array|size:' . BattleshipService::MAX_SUM_SHIPS,
-            'ships.*' => 'array'
+            'type' => 'required|string',
+            'x' => 'required|integer|min:1|max:' . Grid::GRID_SIZE,
+            'y' => 'required|integer|min:1|max:' . Grid::GRID_SIZE,
+            'direction' => ['required', 'string', Rule::in(
+                ShipInterface::DIRECTION_RIGHT,
+                ShipInterface::DIRECTION_DOWN)
+            ],
         ]);
+
+        $type = $request->get('type');
+        $x = $request->get('x');
+        $y = $request->get('y');
+        $direction = $request->get('direction');
+
+        $shipModel = $this->service->getShipModelByName($type);
+        $ship = new $shipModel($x, $y, $direction);
+
+        $this->service->getPlayerGrid()->placeShip($ship);
+
+        return new Response('', 201);
     }
 
     public function fireShot(Request $request)
@@ -51,10 +73,7 @@ class BattleshipController extends BaseController
             'y' => 'required|integer|min:1|max:' . Grid::GRID_SIZE,
         ]);
 
-        $x = $request->get('x');
-        $y = $request->get('y');
-
-        $result = $this->service->shoot($x, $y);
+        $result = $this->service->shoot($request->get('x'), $request->get('y'));
 
         return new JsonResponse($result);
     }
