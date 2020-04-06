@@ -5,6 +5,7 @@ namespace App;
 
 
 use App\Contracts\ShipInterface;
+use App\Exceptions\CollisionException;
 use App\Exceptions\InvalidShipPositionException;
 use App\Exceptions\OutOfGridException;
 use App\Exceptions\ShipAlreadyPlacedException;
@@ -132,7 +133,7 @@ class Grid
         }
 
         if ($this->getShipForPosition($ship->getX(), $ship->getY()) instanceof ShipInterface) {
-            return false;
+            throw new CollisionException($ship);
         }
 
         for ($i = 0; $i < $ship->getLength(); $i++) {
@@ -147,7 +148,7 @@ class Grid
             $shipOnCell = $this->getShipForPosition($x, $y);
 
             if ($shipOnCell) {
-                return false;
+                throw new CollisionException($ship);
             }
         }
 
