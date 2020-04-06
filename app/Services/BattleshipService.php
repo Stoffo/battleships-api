@@ -12,6 +12,7 @@ use App\Models\Carrier;
 use App\Models\Cruiser;
 use App\Models\Destroyer;
 use App\Models\Submarine;
+use App\StateManager;
 
 class BattleshipService
 {
@@ -31,11 +32,16 @@ class BattleshipService
      * @var array
      */
     private $lastEnemyShotCoords = [];
+    /**
+     * @var StateManager
+     */
+    private $stateManager;
 
-    public function __construct(Grid $playerGrid, Grid $enemyGrid)
+    public function __construct(StateManager $stateManager)
     {
-        $this->playerGrid = $playerGrid;
-        $this->enemyGrid = $enemyGrid;
+        $this->stateManager = $stateManager;
+        $this->playerGrid = $stateManager->getPlayerGrid();
+        $this->enemyGrid = $stateManager->getEnemyGrid();
     }
 
     public function isReadyToPlay()
@@ -121,30 +127,14 @@ class BattleshipService
         return [$x, $y];
     }
 
-    public function isGameOver(): bool
-    {
-        return $this->playerGrid->allShipsAreSunk() || $this->enemyGrid->allShipsAreSunk();
-    }
-
     public function resetGame()
     {
-        $playerGridObjectPath = storage_path('app/playergrid');
-        $enemyGridObjectPath = storage_path('app/enemygrid');
-
-        file_put_contents($enemyGridObjectPath, '');
-        file_put_contents($playerGridObjectPath, '');
+        $this->stateManager->reset();
     }
 
     public function __destruct()
     {
-        //TODO: abstract this in a nicer way
-        $playerGridObjectPath = storage_path('app/playergrid');
-        $enemyGridObjectPath = storage_path('app/enemygrid');
-
-        $serializedEnemyGrid = serialize($this->enemyGrid);
-        $serializedPlayerGrid = serialize($this->playerGrid);
-
-        file_put_contents($enemyGridObjectPath, $serializedEnemyGrid);
-        file_put_contents($playerGridObjectPath, $serializedPlayerGrid);
+        $this->stateManager->savePlayerGrid($this->playerGrid);
+        $this->stateManager->saveEnemyGrid($this->enemyGrid);
     }
 }
