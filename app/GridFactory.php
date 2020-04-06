@@ -23,9 +23,9 @@ class GridFactory
         Submarine::class,
     ];
 
-    public static function create(): EnemyGrid
+    public static function create(): Grid
     {
-        $grid = new EnemyGrid();
+        $grid = new Grid();
 
         foreach (self::$ships as $shipType) {
             $isPossible = false;
