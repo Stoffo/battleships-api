@@ -5,6 +5,7 @@ namespace App;
 
 
 use App\Contracts\ShipInterface;
+use App\Exceptions\InvalidShipPositionException;
 
 class Grid
 {
@@ -74,10 +75,15 @@ class Grid
         return array_key_exists($ship->getName(), $this->ships);
     }
 
+    /**
+     * @param ShipInterface $ship
+     * @return bool
+     * @throws InvalidShipPositionException
+     */
     public function placeShip(ShipInterface $ship): bool
     {
         if (!$this->isPossibleToPlaceShip($ship)) {
-            return false;
+            throw new InvalidShipPositionException();
         }
 
         $x = $ship->getX();
