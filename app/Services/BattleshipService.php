@@ -5,18 +5,22 @@ namespace App\Services;
 
 
 use App\Contracts\ShipInterface;
-use App\EnemyGrid;
+use App\Exceptions\GameNotReadyToPlayException;
 use App\Grid;
-use App\PlayerGrid;
+use App\Models\Battleship;
+use App\Models\Carrier;
+use App\Models\Cruiser;
+use App\Models\Destroyer;
+use App\Models\Submarine;
 
 class BattleshipService
 {
     /**
-     * @var PlayerGrid
+     * @var Grid
      */
     private $playerGrid;
     /**
-     * @var EnemyGrid
+     * @var Grid
      */
     private $enemyGrid;
     /**
@@ -49,8 +53,31 @@ class BattleshipService
         return $this->enemyGrid;
     }
 
+    public function getShipModelByName(string $name): ?string
+    {
+        $ships = [
+            'destroyer' => Destroyer::class,
+            'submarine' => Submarine::class,
+            'cruiser' => Cruiser::class,
+            'battleship' => Battleship::class,
+            'carrier' => Carrier::class,
+        ];
+
+        return $ships[$name];
+    }
+
+    /**
+     * @param int $x
+     * @param int $y
+     * @return array
+     * @throws GameNotReadyToPlayException
+     */
     public function shoot(int $x, int $y)
     {
+        if (!$this->getPlayerGrid()->isReadyToPlay()) {
+            throw new GameNotReadyToPlayException();
+        }
+
         //Shoot the Enemy's grid
         $enemyShip = $this->enemyGrid->shoot($x, $y);
         $playerHit = $enemyShip instanceof ShipInterface;
@@ -103,14 +130,13 @@ class BattleshipService
     {
         $playerGridObjectPath = storage_path('app/playergrid');
         $enemyGridObjectPath = storage_path('app/enemygrid');
+
         file_put_contents($enemyGridObjectPath, '');
         file_put_contents($playerGridObjectPath, '');
     }
 
     public function __destruct()
     {
-
-        return;
         //TODO: abstract this in a nicer way
         $playerGridObjectPath = storage_path('app/playergrid');
         $enemyGridObjectPath = storage_path('app/enemygrid');
