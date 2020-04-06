@@ -14,12 +14,13 @@
             color: #adadad;
         }
 
-        label {
-            width: 80px;
-        }
-
         .grid {
             float: left;
+            padding: 10px;
+        }
+
+        .setup {
+            padding: 10px;
         }
 
         .grid-player {
@@ -30,8 +31,8 @@
             float: left;
             background-color: royalblue;
             border: 1px solid black;
-            height: 60px;
-            width: 60px;
+            height: 50px;
+            width: 50px;
             box-sizing: border-box;
         }
 
@@ -40,24 +41,46 @@
             cursor: crosshair;
         }
 
-        .player-cell .boat {
-            background-color: ;
+        .ship {
+            background-color: #696c6e;
         }
 
         .hit {
             background-color: red;
         }
 
+        .hit:hover {
+            background-color: red;
+            cursor: not-allowed;
+        }
+
         .miss {
+            background-color: white;
+        }
+
+        .miss:hover {
+            cursor: not-allowed;
             background-color: white;
         }
 
         .sunk {
             background-color: black;
         }
-    </style>
 
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        .sunk:hover {
+            cursor: not-allowed;
+            background-color: black;
+        }
+
+        input.coordinates {
+            width: 40px;
+        }
+
+        form > label {
+            width: 90px;
+            display: inline-block;
+        }
+    </style>
 </head>
 
 <body>
@@ -70,11 +93,19 @@
 
     <?php
 
-    for ($x = 1; $x <= 10; $x++) {
+    use App\Contracts\ShipInterface;
+    use App\Grid;
+    use App\Models\Battleship;
+    use App\Models\Carrier;
+    use App\Models\Cruiser;
+    use App\Models\Destroyer;
+    use App\Models\Submarine;
+
+    for ($x = 1; $x <= Grid::GRID_SIZE; $x++) {
         echo '<div style="clear: both">';
         echo PHP_EOL;
 
-        for ($y = 1; $y <= 10; $y++) {
+        for ($y = 1; $y <= Grid::GRID_SIZE; $y++) {
             echo "\t";
             echo '<div class="grid-cell player-cell" data-x="' . $x . '" data-y="' . $y . '"></div>';
             echo PHP_EOL;
@@ -91,11 +122,11 @@
 
     <?php
 
-    for ($x = 1; $x <= 10; $x++) {
+    for ($x = 1; $x <= Grid::GRID_SIZE; $x++) {
         echo '<div style="clear: both">';
         echo PHP_EOL;
 
-        for ($y = 1; $y <= 10; $y++) {
+        for ($y = 1; $y <= Grid::GRID_SIZE; $y++) {
             echo "\t";
             echo '<div class="grid-cell enemy-cell" data-x="' . $x . '" data-y="' . $y . '" title="x:' . $x . ' y:' . $y . '"></div>';
             echo PHP_EOL;
@@ -107,17 +138,44 @@
     ?>
 </div>
 
-<div>
-    <button>Place Ships randomly</button>
-    <button class="restart">Restart</button>
+<div class="setup">
+    <h2>Setup</h2>
+    <?php
 
-    <label for="destroyer">destroyer<input type="number" id="destroyer"></label>
-    <label for="submarine">submarine<input type="number" id="submarine"></label>
-    <label for="cruiser">cruiser<input type="number" id="cruiser"></label>
-    <label for="battleship">battleship<input type="number" id="battleship"></label>
-    <label for="carrier">carrier<input type="number" id="carrier"></label>
+    $ships = [
+        Destroyer::class,
+        Cruiser::class,
+        Battleship::class,
+        Submarine::class,
+        Carrier::class
+    ];
+    foreach ($ships as $ship) {
+        $model = new $ship(1, 1, ShipInterface::DIRECTION_RIGHT);
+        $name = $model->getName();
+        $length = $model->getLength();
+
+        echo <<<html
+    <div>
+        <form class="setup-ship" id="$name">
+            <label for="$name">$name</label>
+            <input type="hidden" name="type" value="$name">
+            <input type="hidden" name="length" value="$length">
+            <input type="number" required autocomplete="off" min="1" max="10" placeholder="x" name="x"
+                   class="coordinates">
+            <input type="number" required autocomplete="off" min="1" max="10" placeholder="y" name="y"
+                   class="coordinates">
+            <label for="direction-right" style="width: 40px">right</label>
+            <input type="radio" id="direction-right" checked name="direction" value="right" checked>
+            <label for="direction-down" style="width: 40px">down</label>
+            <input type="radio" id="direction-down" name="direction" value="down">
+            <button>Place Ship</button>
+        </form>
+    </div>
+html;
+    }
+    ?>
 </div>
-
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script>
     (function () {
         const CSS_HIT = 'hit';
@@ -125,17 +183,65 @@
         const CSS_SUNK = 'sunk';
 
         function Battleships() {
-            this.ships = {
-                "destroyer": {"length": 2, "x": null, "y": null, "direction": null},
-                "submarine": {"length": 3, "x": null, "y": null, "direction": null},
-                "cruiser": {"length": 3, "x": null, "y": null, "direction": null},
-                "battleship": {"length": 4, "x": null, "y": null, "direction": null},
-                "carrier": {"length": 5, "x": null, "y": null, "direction": null},
-            };
+            this.init();
         }
 
-        Battleships.prototype.placeShip = function (x, y, type) {
+        Battleships.prototype.init = function () {
+            this.resetGame();
+            self = this;
+            $.post({
+                url: '/api/grids',
+                type: 'get',
+                success: function (rsp) {
+                    self.populateGrid(rsp);
+                }
+            });
+        };
 
+        Battleships.prototype.getCellByCoordinate = function (x, y) {
+            return $(".player-cell[data-x=" + x + "][data-y=" + y + "]");
+        };
+
+        Battleships.prototype.populateGrid = function (data) {
+            console.log('populating player grid...');
+
+            self = this;
+            Object.values(data).forEach(function (cellValue, x) {
+                x++;
+                Object.values(cellValue).forEach(function (shipOnCell, y) {
+                    y++;
+                    if (shipOnCell) {
+                        self.getCellByCoordinate().addClass('ship');
+                    }
+                });
+            });
+        };
+
+        Battleships.prototype.drawPlayerShip = function (shipData) {
+            for (let i = 0; i <= shipData.length; i++) {
+                let $cell;
+                if (shipData.direction === "right") {
+                    $cell = this.getCellByCoordinate(shipData.x, shipData.y + i);
+                } else {
+                    $cell = this.getCellByCoordinate(shipData.x + i, shipData.y);
+                }
+
+                $cell.addClass("ship");
+            }
+        };
+
+        Battleships.prototype.placeShip = function (shipData) {
+            self = this;
+
+            return $.post({
+                url: '/api/place-ship',
+                type: 'post',
+                data: JSON.stringify(shipData),
+                contentType: 'application/json',
+                success: function () {
+                    self.drawPlayerShip(shipData);
+                }
+            });
         };
 
         Battleships.prototype.fire = function (element) {
@@ -153,11 +259,9 @@
                     console.info('Shot fired!');
                     console.debug(rsp);
 
-                    if (rsp.hit === true) {
-                        if (rsp.sunk === true) {
-
+                    if (rsp.player.hit === true) {
+                        if (rsp.player.sunk === true) {
                             element.addClass(CSS_SUNK);
-
                             console.info("Enemy Boat sunk!")
                         }
 
@@ -167,7 +271,7 @@
                         element.addClass(CSS_MISS);
                     }
 
-                    battleships.markEnemyShot(rsp.enemy_shot.x, rsp.enemy_shot.y);
+                    battleships.markEnemyShot(rsp.enemy.x, rsp.enemy.y, rsp.enemy.hit, rsp.enemy.sunk);
                 },
                 error: function (rsp) {
                     console.error(rsp);
@@ -176,9 +280,28 @@
             });
         };
 
-        Battleships.prototype.markEnemyShot = function (x, y) {
+        Battleships.prototype.markEnemyShot = function (x, y, hit, sunk) {
             //Check if hit or sunk
-            $(".player-cell[data-x=" + x + "][data-y=" + y + "]").addClass("sunk").val("X")
+            let $cell = this.getCellByCoordinate(x, y);
+
+            if (hit) {
+                $cell.addClass('hit')
+            }
+            if (sunk) {
+                $cell.addClass('sunk');
+            } else {
+                $cell.addClass('miss');
+            }
+        };
+
+        Battleships.prototype.resetGame = function () {
+            $.post({
+                url: '/api/reset',
+                type: 'post',
+                success: function () {
+                    console.log("reset last game state, ready to go!")
+                }
+            });
         };
 
         let battleships = new Battleships();
@@ -194,14 +317,40 @@
             battleships.fire($clickedCell);
         });
 
-        $("button.restart").click(function (e) {
-            $.post({
-                url: '/api/reset',
-                type: 'post',
-                success: function () {
-                    location.reload();
+        $("form.setup-ship button").click(function (e) {
+            e.preventDefault();
+
+            let $button = $(e.target);
+            let shipData = {};
+
+            //get form as object
+            $button.parent().serializeArray().forEach(function (data) {
+                if (data.name === "length" || data.name === "x" || data.name === "y") {
+                    data.value = parseInt(data.value);
                 }
+                shipData[data.name] = data.value;
             });
+
+            battleships.placeShip(shipData)
+                .done(function () {
+                    $button.prop("disabled", true).html("Ship placed!");
+                })
+                .fail(function (rsp) {
+                    if (rsp.responseJSON.hasOwnProperty('message')) {
+                        alert(rsp.responseJSON.message);
+                        return;
+                    }
+
+                    let alertMessage = '';
+                    Object.values(rsp.responseJSON).map(function (message, x) {
+
+                        console.log(message, x);
+                        alertMessage += message + '\n';
+
+                    });
+
+                    alert(alertMessage);
+                })
         });
     }());
 </script>
