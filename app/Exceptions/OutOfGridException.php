@@ -4,9 +4,7 @@
 namespace App\Exceptions;
 
 
-use Exception;
-
-class OutOfGridException extends Exception
+class OutOfGridException extends BattleShipException
 {
     public function __construct()
     {

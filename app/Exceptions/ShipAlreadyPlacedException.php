@@ -5,9 +5,8 @@ namespace App\Exceptions;
 
 
 use App\Contracts\ShipInterface;
-use LogicException;
 
-class ShipAlreadyPlacedException extends LogicException
+class ShipAlreadyPlacedException extends BattleShipException
 {
     public function __construct(ShipInterface $ship)
     {

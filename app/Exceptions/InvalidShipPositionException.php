@@ -4,9 +4,7 @@
 namespace App\Exceptions;
 
 
-use Exception;
-
-class InvalidShipPositionException extends Exception
+class InvalidShipPositionException extends BattleShipException
 {
     public function __construct()
     {

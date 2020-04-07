@@ -4,9 +4,7 @@
 namespace App\Exceptions;
 
 
-use Exception;
-
-class GameNotReadyToPlayException extends Exception
+class GameNotReadyToPlayException extends BattleShipException
 {
     public function __construct()
     {

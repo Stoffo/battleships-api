@@ -62,11 +62,6 @@ class Handler extends ExceptionHandler
             return new JsonResponse($response, $response['status']);
         }
 
-        return new JsonResponse([
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine()
-            ], 400
-        );
+        return new JsonResponse(['message' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()], 400);
     }
 }

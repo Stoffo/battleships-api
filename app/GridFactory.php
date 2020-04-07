@@ -5,6 +5,7 @@ namespace App;
 
 
 use App\Contracts\ShipInterface;
+use App\Exceptions\BattleShipException;
 use App\Models\Battleship;
 use App\Models\Carrier;
 use App\Models\Cruiser;
@@ -36,7 +37,7 @@ class GridFactory
 
                 try {
                     $isPossible = $grid->placeShip($randomShip);
-                } catch (Exceptions\InvalidShipPositionException $e) {
+                } catch (BattleShipException $e) {
                     $isPossible = false;
                 }
             }
@@ -45,7 +46,7 @@ class GridFactory
         if (!$grid->isReadyToPlay()) {
             throw new LogicException('Game is not ready. Something went wrong!');
         }
-        
+
         return $grid;
     }
 

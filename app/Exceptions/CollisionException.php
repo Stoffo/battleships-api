@@ -5,9 +5,8 @@ namespace App\Exceptions;
 
 
 use App\Contracts\ShipInterface;
-use LogicException;
 
-class CollisionException extends LogicException
+class CollisionException extends BattleShipException
 {
     public function __construct(ShipInterface $ship)
     {
