@@ -1,5 +1,7 @@
 # Battleships Code Challenge
 
+![screenshot](https://user-images.githubusercontent.com/7805224/78670920-ce73f480-78de-11ea-9f66-be923e98b821.png)
+
 ## Instructions
 
 1. Checkout this repository
