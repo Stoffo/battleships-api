@@ -11,5 +11,9 @@
 ## Tests
 - Run the tests with `./vendor/bin/phpunit`
 
+
+## Postman Collection
+- The postman collection can be found [here](Battleships.postman_collection.json).
+
 ---
 The official instructions can be found here: https://www.hasbro.com/common/instruct/Battleship.PDF
