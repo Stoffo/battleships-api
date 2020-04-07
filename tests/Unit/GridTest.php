@@ -63,7 +63,6 @@ class GridTest extends TestCase
         $this->grid->placeShip(new Battleship(1, 3, ShipInterface::DIRECTION_RIGHT));
         $this->expectException(CollisionException::class);
         $this->grid->placeShip(new Cruiser(1, 1, ShipInterface::DIRECTION_RIGHT));
-
     }
 
     public function testShipPlacementWhenShipIsInTheWayVertical()
@@ -90,5 +89,10 @@ class GridTest extends TestCase
         $this->grid->placeShip(new Submarine(9, 1, ShipInterface::DIRECTION_RIGHT));
 
         $this->assertFalse($this->grid->allShipsAreSunk());
+    }
+
+    public function testGetGridModels()
+    {
+        $this->assertCount(Grid::MAX_SUM_SHIPS, $this->grid->getShipModels());
     }
 }

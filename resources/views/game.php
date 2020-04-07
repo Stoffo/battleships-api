@@ -109,6 +109,7 @@
     use App\Models\Cruiser;
     use App\Models\Destroyer;
     use App\Models\Submarine;
+    use App\Services\BattleshipService;
 
     for ($x = 1; $x <= Grid::GRID_SIZE; $x++) {
         echo '<div style="clear: both">';
@@ -151,13 +152,9 @@
     <h2>Setup</h2>
     <?php
 
-    $ships = [
-        Destroyer::class,
-        Cruiser::class,
-        Battleship::class,
-        Submarine::class,
-        Carrier::class
-    ];
+    //Get ship models from service to setup the form
+    $ships = app()->get(BattleshipService::class)->getPlayerGrid()->getShipModels();
+
     foreach ($ships as $ship) {
         $model = new $ship(1, 1, ShipInterface::DIRECTION_RIGHT);
         $name = $model->getName();
@@ -166,7 +163,7 @@
         echo <<<html
     <div>
         <form class="setup-ship" id="$name">
-            <label for="$name">$name</label>
+            <label for="$name" title="Length: $length">$name</label>
             <input type="hidden" name="type" value="$name">
             <input type="hidden" name="length" value="$length">
             <input type="number" required autocomplete="off" min="1" max="10" placeholder="x" name="x"
@@ -206,14 +203,7 @@ html;
         Battleships.prototype.init = function () {
             this.resetGame();
 
-            self = this;
-            $.post({
-                url: "/api/grids/player",
-                type: "get",
-                success: function (rsp) {
-                    self.populateGrid(rsp);
-                }
-            });
+            $(".log").prepend('Place your ships!');
         };
 
         Battleships.prototype.getCellByCoordinate = function (x, y) {

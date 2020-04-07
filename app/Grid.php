@@ -9,6 +9,11 @@ use App\Exceptions\CollisionException;
 use App\Exceptions\InvalidShipPositionException;
 use App\Exceptions\OutOfGridException;
 use App\Exceptions\ShipAlreadyPlacedException;
+use App\Models\Battleship;
+use App\Models\Carrier;
+use App\Models\Cruiser;
+use App\Models\Destroyer;
+use App\Models\Submarine;
 
 class Grid
 {
@@ -34,6 +39,17 @@ class Grid
                 $this->grid[$x][$y] = null;
             }
         }
+    }
+
+    public function getShipModels(): array
+    {
+        return [
+            Destroyer::class,
+            Cruiser::class,
+            Battleship::class,
+            Submarine::class,
+            Carrier::class
+        ];
     }
 
     /**
@@ -83,6 +99,7 @@ class Grid
      * @return bool
      * @throws InvalidShipPositionException
      * @throws OutOfGridException
+     * @throws ShipAlreadyPlacedException
      */
     public function placeShip(ShipInterface $ship): bool
     {
@@ -117,6 +134,7 @@ class Grid
      * @return bool
      * @throws OutOfGridException
      * @throws ShipAlreadyPlacedException
+     * @throws CollisionException
      */
     protected function isPossibleToPlaceShip(ShipInterface $ship): bool
     {
@@ -164,7 +182,7 @@ class Grid
         return $ship->getY() + $ship->getLength() <= self::GRID_SIZE;
     }
 
-    public function allShipsAreSunk()
+    public function allShipsAreSunk(): bool
     {
         if (!$this->isReadyToPlay()) {
             return false;

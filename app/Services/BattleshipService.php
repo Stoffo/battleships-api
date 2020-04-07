@@ -6,6 +6,9 @@ namespace App\Services;
 
 use App\Contracts\ShipInterface;
 use App\Exceptions\GameNotReadyToPlayException;
+use App\Exceptions\InvalidShipPositionException;
+use App\Exceptions\OutOfGridException;
+use App\Exceptions\ShipAlreadyPlacedException;
 use App\Grid;
 use App\Models\Battleship;
 use App\Models\Carrier;
@@ -56,8 +59,9 @@ class BattleshipService
 
     /**
      * @param ShipInterface $ship
-     * @throws \App\Exceptions\InvalidShipPositionException
-     * @throws \App\Exceptions\OutOfGridException
+     * @throws InvalidShipPositionException
+     * @throws OutOfGridException
+     * @throws ShipAlreadyPlacedException
      */
     public function placeShip(ShipInterface $ship)
     {
@@ -84,7 +88,7 @@ class BattleshipService
      * @return array
      * @throws GameNotReadyToPlayException
      */
-    public function shoot(int $x, int $y)
+    public function shoot(int $x, int $y): array
     {
         if (!$this->getPlayerGrid()->isReadyToPlay()) {
             throw new GameNotReadyToPlayException();
@@ -122,7 +126,7 @@ class BattleshipService
         ];
     }
 
-    protected function getEnemyShot()
+    protected function getEnemyShot(): array
     {
         if ($this->enemyDidHitLastTime) {
             $lastCoords = $this->lastEnemyShotCoords;
@@ -140,7 +144,7 @@ class BattleshipService
         return [$x, $y];
     }
 
-    public function resetGame()
+    public function resetGame(): void
     {
         $this->stateManager->reset();
     }
