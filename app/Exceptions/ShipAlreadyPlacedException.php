@@ -10,6 +10,6 @@ class ShipAlreadyPlacedException extends BattleShipException
 {
     public function __construct(ShipInterface $ship)
     {
-        parent::__construct($ship->getName() . 'is already placed in the grid!');
+        parent::__construct($ship->getName() . ' is already placed in the grid!');
     }
 }
