@@ -67,7 +67,12 @@ class StateManager
 
     public function reset()
     {
-        unlink($this->playerGridPath);
-        unlink($this->enemyGridPath);
+        if (file_exists($this->playerGridPath)) {
+            unlink($this->playerGridPath);
+        }
+
+        if (file_exists($this->playerGridPath)) {
+            unlink($this->enemyGridPath);
+        }
     }
 }
