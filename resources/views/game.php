@@ -199,6 +199,8 @@ html;
 
         function Battleships() {
             this.init();
+
+            this.shipCount = 0;
         }
 
         Battleships.prototype.init = function () {
@@ -301,13 +303,13 @@ html;
             let $cell = this.getCellByCoordinate(x, y);
 
             if (hit) {
-                $cell.addClass('hit')
+                return $cell.addClass(CSS_HIT);
             }
             if (sunk) {
-                $cell.addClass('sunk');
-            } else {
-                $cell.addClass('miss');
+                return $cell.addClass(CSS_SUNK);
             }
+
+            return $cell.addClass(CSS_MISS);
         };
 
         Battleships.prototype.resetGame = function () {
