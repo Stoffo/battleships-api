@@ -4,6 +4,14 @@
 namespace App;
 
 
+/**
+ * Class StateManager
+ *
+ * This class takes care of the states between requests.
+ * For simplicity reasons we save the states in files.
+ *
+ * @package App
+ */
 class StateManager
 {
     /**
@@ -26,18 +34,32 @@ class StateManager
         $this->gridFactory = $gridFactory;
     }
 
-    public function getPlayerGrid()
+    public function getPlayerGrid(): Grid
     {
         $savedState = $this->getObjectByPath($this->playerGridPath);
 
-        return $savedState instanceof Grid ? $savedState : new Grid();
+        if ($savedState) {
+            return $savedState;
+        }
+        
+        $newPlayerGrid = new Grid();
+        $this->serializeObjectAndSave($newPlayerGrid, $this->playerGridPath);
+
+        return $newPlayerGrid;
     }
 
-    public function getEnemyGrid()
+    public function getEnemyGrid(): Grid
     {
         $savedState = $this->getObjectByPath($this->enemyGridPath);
 
-        return $savedState instanceof Grid ? $savedState : $this->gridFactory::create();
+        if ($savedState) {
+            return $savedState;
+        }
+
+        $newEnemyGrid = $this->gridFactory::create();
+        $this->serializeObjectAndSave($newEnemyGrid, $this->enemyGridPath);
+
+        return $newEnemyGrid;
     }
 
     public function getObjectByPath($path): ?Grid
@@ -49,29 +71,29 @@ class StateManager
         return null;
     }
 
-    public function savePlayerGrid(Grid $grid)
+    public function savePlayerGrid(Grid $grid): void
     {
         $this->serializeObjectAndSave($grid, $this->playerGridPath);
     }
 
-    public function saveEnemyGrid(Grid $grid)
+    public function saveEnemyGrid(Grid $grid): void
     {
         $this->serializeObjectAndSave($grid, $this->enemyGridPath);
     }
 
-    private function serializeObjectAndSave(Grid $grid, string $path)
+    private function serializeObjectAndSave(Grid $grid, string $path): void
     {
         $serializedPlayerGrid = serialize($grid);
         file_put_contents($path, $serializedPlayerGrid);
     }
 
-    public function reset()
+    public function reset(): void
     {
         if (file_exists($this->playerGridPath)) {
             unlink($this->playerGridPath);
         }
 
-        if (file_exists($this->playerGridPath)) {
+        if (file_exists($this->enemyGridPath)) {
             unlink($this->enemyGridPath);
         }
     }

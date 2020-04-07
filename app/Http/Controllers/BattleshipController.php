@@ -34,7 +34,7 @@ class BattleshipController extends BaseController
         return new JsonResponse($this->service->getEnemyGrid()->getGridAsArray());
     }
 
-    public function resetGame()
+    public function resetGame(Request $request)
     {
         $this->service->resetGame();
 
@@ -61,7 +61,7 @@ class BattleshipController extends BaseController
         $shipModel = $this->service->getShipModelByName($type);
         $ship = new $shipModel($x, $y, $direction);
 
-        $this->service->getPlayerGrid()->placeShip($ship);
+        $this->service->placeShip($ship);
 
         return new Response('', 201);
     }

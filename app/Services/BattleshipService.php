@@ -54,6 +54,17 @@ class BattleshipService
         return $this->enemyGrid;
     }
 
+    /**
+     * @param ShipInterface $ship
+     * @throws \App\Exceptions\InvalidShipPositionException
+     * @throws \App\Exceptions\OutOfGridException
+     */
+    public function placeShip(ShipInterface $ship)
+    {
+        $this->getPlayerGrid()->placeShip($ship);
+        $this->stateManager->savePlayerGrid($this->getPlayerGrid());
+    }
+
     public function getShipModelByName(string $name): ?string
     {
         $ships = [
@@ -91,6 +102,10 @@ class BattleshipService
 
         $this->enemyDidHitLastTime = $enemyHit;
 
+        //Save states for the next request
+        $this->stateManager->savePlayerGrid($this->getPlayerGrid());
+        $this->stateManager->saveEnemyGrid($this->getEnemyGrid());
+
         return [
             'player' => [
                 'hit' => $playerHit,
@@ -112,6 +127,7 @@ class BattleshipService
         if ($this->enemyDidHitLastTime) {
             $lastCoords = $this->lastEnemyShotCoords;
 
+            //TODO: Improve the intelligence of the enemy
             //Try to hit the next cell to it
             return [$lastCoords[0]--, $lastCoords[1]];
         }
@@ -127,11 +143,5 @@ class BattleshipService
     public function resetGame()
     {
         $this->stateManager->reset();
-    }
-
-    public function __destruct()
-    {
-        $this->stateManager->savePlayerGrid($this->playerGrid);
-        $this->stateManager->saveEnemyGrid($this->enemyGrid);
     }
 }

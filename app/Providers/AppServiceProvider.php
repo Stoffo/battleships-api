@@ -16,9 +16,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(BattleshipService::class, function () {
+        $this->app->singleton(StateManager::class, function () {
+            return new StateManager(new GridFactory());
+        });
 
-            return new BattleshipService(new StateManager(new GridFactory()));
+        $this->app->singleton(BattleshipService::class, function () {
+            return new BattleshipService($this->app->get(StateManager::class));
         });
     }
 }
