@@ -44,11 +44,6 @@ class BattleshipService
         $this->enemyGrid = $stateManager->getEnemyGrid();
     }
 
-    public function isReadyToPlay()
-    {
-        return $this->getPlayerGrid()->isReadyToPlay();
-    }
-
     public function getPlayerGrid(): Grid
     {
         return $this->playerGrid;
@@ -116,7 +111,9 @@ class BattleshipService
     {
         if ($this->enemyDidHitLastTime) {
             $lastCoords = $this->lastEnemyShotCoords;
-            return $lastCoords[0]--;
+
+            //Try to hit the next cell to it
+            return [$lastCoords[0]--, $lastCoords[1]];
         }
 
         $x = random_int(1, 10);
