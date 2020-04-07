@@ -77,9 +77,4 @@ class BattleshipController extends BaseController
 
         return new JsonResponse($result);
     }
-
-    public function reset()
-    {
-        $this->service->reset();
-    }
 }
